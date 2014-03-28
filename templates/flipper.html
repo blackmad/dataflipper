@@ -1,0 +1,76 @@
+<html>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.6/mousetrap.js"></script>
+ 
+ <script>
+    var data = {{data|tojson|safe}};
+    var proxy = {{proxy|tojson|safe}};
+  </script>
+  <body>
+    <div id="statusArea">
+      <div id="line"></div>
+      <input type="button" name="prev" value="prev" id="prev"></input>
+      <select id="urls"></select>
+      <input type="button" name="next" value="next" id="next"></input>
+    </div>
+    <iframe id="iframe1" style="border: 0; width: 100%; height: 100%"></iframe>
+  </body>
+  <script>
+    var urlsSelect = $('#urls')[0];
+    var $urlsSelect = $('#urls');
+    var iframe1 = $('#iframe1')[0];
+    var $line = $('#line');
+  
+    var currentIndex = 0;  
+    $urlsSelect.change(function(s) {
+      currentIndex = urlsSelect.selectedIndex;
+      updateToIndex();
+    });
+
+    function updateToIndex() {
+      url = data[currentIndex]['urls'][0];
+      originalUrl = url
+      if (proxy) {
+        url = window.location.toString() + 'proxy/' + url;
+      }
+      iframe1.src = url;
+      content = currentIndex + ': ';
+      if (data[currentIndex]['lineDict']) {
+        content += JSON.stringify(data[currentIndex]['lineDict'])
+      } else {
+        content += data[currentIndex]['line']
+      }
+      content += '<br/><a href="' + originalUrl + '">' + originalUrl + '</a>';
+      $line.html('<div>' + content + '</div>');
+      urlsSelect.selectedIndex = currentIndex;
+    }
+
+    function nextItem() {
+      currentIndex += 1;
+      if (currentIndex == urlsSelect.length) {
+        currentIndex = 0;
+      }
+      updateToIndex();
+    }
+
+    function prevItem() {
+      currentIndex -= 1;
+      if (currentIndex == -1) {
+        currentIndex = urlsSelect.length - 1;
+      }
+      updateToIndex();
+    }
+
+    Mousetrap.bind('right', function() { nextItem(); });
+    Mousetrap.bind('left', function() { prevItem(); });
+    _.each(data, function(entry, index) {
+      $urlsSelect.append($('<option>' + index  + ': ' + entry.urls[0] + '</option>'))
+    });
+    updateToIndex();
+    $('#next').click(nextItem);
+    $('#prev').click(prevItem);
+  </script>
+
+</html>
