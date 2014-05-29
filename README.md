@@ -11,6 +11,7 @@ assume you have a csv with headers with 4sq venue ids in the 'id' column. Becaus
 
   (-H for headers, -p for url pattern, --proxy for proxy, -f for file input)
 
- ./flipper.py -p 'http://foursquare.com/venue/${id}' -H --proxy -f input.csv
+  ./create-virtualenv-with-deps.sh
+  ./env/bin/python flipper.py -p 'http://foursquare.com/venue/${id}' -H --proxy -f input.csv
 
 If you don't need the proxy, and don't specify --server, it outputs static html to stdout.
